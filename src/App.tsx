@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { motion, useScroll, useTransform, AnimatePresence } from 'motion/react';
+import { motion, useScroll, useTransform, AnimatePresence, useMotionValueEvent } from 'motion/react';
 import {
   MessageSquare,
   Phone,
@@ -8,6 +8,7 @@ import {
   X,
   Zap,
   ChevronRight,
+  ChevronLeft,
   Truck,
   Wrench,
   ShieldCheck,
@@ -61,15 +62,15 @@ const CustomSelect = ({ options, value, onChange, placeholder, icon: Icon }: Cus
   const selectedLabel = options.find((opt) => opt.value === value)?.label;
 
   return (
-    <div className="relative" ref={containerRef}>
+    <div className={`relative ${isOpen ? 'z-50' : 'z-10'}`} ref={containerRef}>
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
         className={`w-full pl-12 pr-4 py-4 text-left bg-white dark:bg-neutral-900 border ${
-          isOpen ? 'border-green-500 ring-2 ring-green-500/20' : 'border-slate-200 dark:border-white/10'
-        } rounded-xl text-slate-900 dark:text-white font-medium transition-all hover:border-green-500/50 flex items-center justify-between group outline-none`}
+          isOpen ? 'border-orange-500 ring-2 ring-orange-500/20' : 'border-slate-200 dark:border-white/10'
+        } rounded-xl text-slate-900 dark:text-white font-medium transition-all hover:border-orange-500/50 flex items-center justify-between group outline-none`}
       >
-        <div className="absolute left-4 text-slate-400 group-hover:text-green-600 transition-colors">
+        <div className="absolute left-4 text-slate-400 group-hover:text-orange-600 transition-colors">
           <Icon className="w-5 h-5" />
         </div>
         <span className={`block truncate ${!value ? 'text-slate-500' : ''}`}>
@@ -89,7 +90,7 @@ const CustomSelect = ({ options, value, onChange, placeholder, icon: Icon }: Cus
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.95 }}
             transition={{ duration: 0.2, ease: "easeOut" }}
-            className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-[#0a120b] border border-slate-100 dark:border-white/10 rounded-xl shadow-2xl overflow-hidden z-50 max-h-60 overflow-y-auto custom-scrollbar"
+            className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-[#120500] border border-slate-100 dark:border-white/10 rounded-xl shadow-2xl overflow-hidden z-50 max-h-60 overflow-y-auto custom-scrollbar"
           >
             {options.map((option) => (
               <button
@@ -101,13 +102,13 @@ const CustomSelect = ({ options, value, onChange, placeholder, icon: Icon }: Cus
                 }}
                 className={`w-full px-4 py-3 text-left flex items-center justify-between hover:bg-slate-50 dark:hover:bg-white/5 transition-colors ${
                   value === option.value
-                    ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400'
+                    ? 'bg-orange-50 dark:bg-orange-900/20 text-orange-700 dark:text-orange-400'
                     : 'text-slate-700 dark:text-gray-300'
                 }`}
               >
                 <span className="font-medium truncate">{option.label}</span>
                 {value === option.value && (
-                  <Check className="w-4 h-4 text-green-500 shrink-0" />
+                  <Check className="w-4 h-4 text-orange-500 shrink-0" />
                 )}
               </button>
             ))}
@@ -138,14 +139,163 @@ export default function App() {
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(null);
   const [selectedCity, setSelectedCity] = useState('');
   const [selectedCarModel, setSelectedCarModel] = useState('');
+  const [currentUnitImageIndex, setCurrentUnitImageIndex] = useState(0);
+  const carouselRef = useRef<HTMLDivElement>(null);
+  const brandsCarouselRef = useRef<HTMLDivElement>(null);
+
+  const scrollBrandsLeft = () => {
+    if (brandsCarouselRef.current) {
+      const scrollAmount = brandsCarouselRef.current.firstElementChild?.clientWidth || 350;
+      brandsCarouselRef.current.scrollBy({ left: -(scrollAmount + 24), behavior: 'smooth' });
+    }
+  };
+
+  const scrollBrandsRight = () => {
+    if (brandsCarouselRef.current) {
+      const scrollAmount = brandsCarouselRef.current.firstElementChild?.clientWidth || 350;
+      brandsCarouselRef.current.scrollBy({ left: scrollAmount + 24, behavior: 'smooth' });
+    }
+  };
+
+  const batteryBrands = [
+    {
+      name: "Moura",
+      tag: "MouraOriginal",
+      desc: "Líder absoluta. A bateria original das maiores montadoras do mundo. Durabilidade comprovada.",
+      img: "https://i.imgur.com/rDi6Fsu.png"
+    },
+    {
+      name: "Crall",
+      tag: "CrallOriginal",
+      desc: "Excelente custo-benefício. Energia confiável para o dia a dia com certificação do Inmetro.",
+      img: "https://i.imgur.com/QQvBK2A.png"
+    },
+    {
+      name: "Heliar",
+      tag: "HeliarOriginal",
+      desc: "Tecnologia PowerFrame. Maior resistência à corrosão e fluxo de corrente otimizado.",
+      img: "https://i.imgur.com/ik4r0sE.png"
+    },
+    {
+      name: "Pioneiro",
+      tag: "PioneiroOriginal",
+      desc: "Alta performance e variedade de aplicações. A escolha inteligente para quem busca qualidade.",
+      img: "https://i.imgur.com/ZmND1y8.png"
+    },
+    {
+      name: "Bosch",
+      tag: "BoschOriginal",
+      desc: "Tecnologia alemã de ponta. Máxima potência de partida e longa vida útil para o seu veículo.",
+      img: "https://i.imgur.com/0pcm10W.png"
+    },
+    {
+      name: "Connect",
+      tag: "ConnectOriginal",
+      desc: "Baterias de alta tecnologia com excelente desempenho e durabilidade para diversas aplicações.",
+      img: "https://i.imgur.com/2z3E5lk.png"
+    },
+    {
+      name: "OnBat",
+      tag: "OnBatOriginal",
+      desc: "Qualidade superior e resistência. Projetada para entregar energia constante e confiável.",
+      img: "https://i.imgur.com/yGSoaZR.png"
+    },
+    {
+      name: "Zetta",
+      tag: "ZettaOriginal",
+      desc: "Fabricada pela Moura. Qualidade premium com excelente custo-benefício para o seu dia a dia.",
+      img: "https://i.imgur.com/XfmQfxx.png"
+    },
+    {
+      name: "Extranger",
+      tag: "ExtrangerOriginal",
+      desc: "Robustez e durabilidade. A energia que seu veículo precisa para rodar com segurança.",
+      img: "https://i.imgur.com/ZIqdjTy.jpeg"
+    }
+  ];
+
+  useEffect(() => {
+    const carousel = brandsCarouselRef.current;
+    if (!carousel) return;
+
+    let isInteracting = false;
+    let animationFrameId: number;
+    let scrollSpeed = 0.5; // Pixels per frame
+    let currentScroll = carousel.scrollLeft;
+
+    const handleInteractStart = () => { isInteracting = true; };
+    const handleInteractEnd = () => { 
+      setTimeout(() => { isInteracting = false; }, 1000);
+    };
+
+    carousel.addEventListener('mouseenter', handleInteractStart);
+    carousel.addEventListener('mouseleave', handleInteractEnd);
+    carousel.addEventListener('touchstart', handleInteractStart, { passive: true });
+    carousel.addEventListener('touchend', handleInteractEnd);
+
+    const scrollContinuously = () => {
+      if (!isInteracting && carousel) {
+        const maxScroll = carousel.scrollWidth - carousel.clientWidth;
+        
+        if (currentScroll >= maxScroll - 1) {
+          // Reset to beginning smoothly
+          currentScroll = 0;
+        } else {
+          currentScroll += scrollSpeed;
+        }
+        carousel.scrollLeft = currentScroll;
+      } else if (carousel) {
+        // Sync accumulator when user interacts
+        currentScroll = carousel.scrollLeft;
+      }
+      animationFrameId = requestAnimationFrame(scrollContinuously);
+    };
+
+    animationFrameId = requestAnimationFrame(scrollContinuously);
+
+    return () => {
+      cancelAnimationFrame(animationFrameId);
+      carousel.removeEventListener('mouseenter', handleInteractStart);
+      carousel.removeEventListener('mouseleave', handleInteractEnd);
+      carousel.removeEventListener('touchstart', handleInteractStart);
+      carousel.removeEventListener('touchend', handleInteractEnd);
+    };
+  }, []);
+
+  const unitImages = [
+    "https://i.imgur.com/JH7hHQ6.png",
+    "https://i.imgur.com/ASKZH35.png",
+    "https://i.imgur.com/2AmMerN.png"
+  ];
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentUnitImageIndex((prev) => (prev + 1) % unitImages.length);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, [unitImages.length]);
+
+  const scrollLeft = () => {
+    if (carouselRef.current) {
+      const scrollAmount = carouselRef.current.firstElementChild?.clientWidth || 350;
+      carouselRef.current.scrollBy({ left: -(scrollAmount + 24), behavior: 'smooth' });
+    }
+  };
+
+  const scrollRight = () => {
+    if (carouselRef.current) {
+      const scrollAmount = carouselRef.current.firstElementChild?.clientWidth || 350;
+      carouselRef.current.scrollBy({ left: scrollAmount + 24, behavior: 'smooth' });
+    }
+  };
 
   const cityOptions = [
-    { value: 'taguatinga-norte', label: 'Taguatinga Norte' },
-    { value: 'ceilandia', label: 'Ceilândia' },
-    { value: 'vicente-pires', label: 'Vicente Pires' },
-    { value: 'aguas-claras', label: 'Águas Claras' },
-    { value: 'taguatinga-centro', label: 'Taguatinga Centro' },
-    { value: 'samambaia', label: 'Samambaia' },
+    { value: 'jardim-america', label: 'Jardim América' },
+    { value: 'bueno', label: 'Setor Bueno' },
+    { value: 'marista', label: 'Setor Marista' },
+    { value: 'pedro-ludovico', label: 'Pedro Ludovico' },
+    { value: 'campinas', label: 'Campinas' },
+    { value: 'centro', label: 'Centro' },
   ];
 
   const modelOptions = [
@@ -155,17 +305,21 @@ export default function App() {
     { value: 'pesado', label: 'Caminhão / Ônibus' },
   ];
 
+  const [whatsappNumber] = useState(() => {
+    const numbers = ['5562993147640', '5562995251379'];
+    return numbers[Math.floor(Math.random() * numbers.length)];
+  });
+
   const getWhatsappLink = () => {
-    const phoneNumber = '5561991004308';
     let message = 'Olá, gostaria de conferir os preços';
     
     const cityMap: Record<string, string> = {
-      'taguatinga-norte': 'Taguatinga Norte',
-      'ceilandia': 'Ceilândia',
-      'vicente-pires': 'Vicente Pires',
-      'aguas-claras': 'Águas Claras',
-      'taguatinga-centro': 'Taguatinga Centro',
-      'samambaia': 'Samambaia'
+      'jardim-america': 'Jardim América',
+      'bueno': 'Setor Bueno',
+      'marista': 'Setor Marista',
+      'pedro-ludovico': 'Pedro Ludovico',
+      'campinas': 'Campinas',
+      'centro': 'Centro'
     };
 
     const modelMap: Record<string, string> = {
@@ -183,30 +337,31 @@ export default function App() {
       message += ` em ${cityMap[selectedCity] || selectedCity}`;
     }
 
-    if (!selectedCity && !selectedCarModel) {
-        return 'https://wa.link/zgopqx';
-    }
-
-    return `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+    return `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
   };
 
-  const { scrollY } = useScroll();
+  const { scrollY, scrollYProgress } = useScroll();
   const y = useTransform(scrollY, [0, 500], [0, 150]);
   const scale = useTransform(scrollY, [0, 500], [1, 1.1]);
 
-  useEffect(() => {
-    // Check system preference or saved preference
-    if (
-      localStorage.theme === 'dark' ||
-      (!('theme' in localStorage) &&
-        window.matchMedia('(prefers-color-scheme: dark)').matches)
-    ) {
-      setIsDarkMode(true);
-      document.documentElement.classList.add('dark');
+  const navPadding = useTransform(scrollY, [0, 100], ["1.5rem", "0.5rem"]);
+  const logoScale = useTransform(scrollY, [0, 100], [1, 0.8]);
+
+  const [showButton, setShowButton] = useState(false);
+
+  useMotionValueEvent(scrollYProgress, "change", (latest) => {
+    if (latest >= 0.3) {
+      setShowButton(true);
     } else {
-      setIsDarkMode(false);
-      document.documentElement.classList.remove('dark');
+      setShowButton(false);
     }
+  });
+
+  useEffect(() => {
+    // Sempre iniciar no modo claro quando o usuário entrar no site
+    setIsDarkMode(false);
+    document.documentElement.classList.remove('dark');
+    localStorage.theme = 'light';
   }, []);
 
   const toggleTheme = () => {
@@ -226,7 +381,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-[#050a06] dark:bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] dark:from-green-900/40 dark:via-[#050a06] dark:to-[#050a06] text-slate-900 dark:text-white font-sans selection:bg-green-600 selection:text-white relative transition-colors duration-300">
+    <div className="min-h-screen bg-slate-50 dark:bg-[#0a0500] dark:bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] dark:from-orange-900/40 dark:via-[#0a0500] dark:to-[#0a0500] text-slate-900 dark:text-white font-sans selection:bg-orange-600 selection:text-white relative transition-colors duration-300">
       {/* Noise Overlay */}
       <div 
         className="fixed inset-0 z-[9999] pointer-events-none opacity-[0.03] mix-blend-overlay"
@@ -236,12 +391,19 @@ export default function App() {
       ></div>
 
       {/* Floating Emergency Call Button */}
-      <a
-        href="tel:61991004308"
+      <motion.a
+        href="tel:62993147640"
         aria-label="Ligar para socorro de baterias"
+        variants={{
+          visible: { y: 0, opacity: 1 },
+          hidden: { y: 150, opacity: 0 }
+        }}
+        animate={showButton ? "visible" : "hidden"}
+        initial="hidden"
+        transition={{ duration: 0.35, ease: "easeInOut" }}
         className="fixed bottom-0 left-0 w-full z-[300] md:bottom-6 md:right-6 md:left-auto md:w-auto"
       >
-        <div className="flex items-center justify-center gap-3 bg-[#25D366] py-5 md:py-4 md:px-6 md:rounded-full shadow-2xl hover:bg-[#20ba5a] transition-all group hover-electric-green">
+        <div className="flex items-center justify-center gap-3 bg-gradient-to-r from-orange-500 to-orange-700 py-5 md:py-4 md:px-6 md:rounded-full shadow-2xl hover:from-orange-600 hover:to-orange-800 transition-all group hover-electric-orange">
           <Phone className="w-6 h-6 md:w-8 md:h-8 text-white fill-current" />
           <div className="flex flex-col md:hidden">
             <span className="text-[10px] font-black uppercase tracking-widest text-white/80 leading-none mb-1">
@@ -260,43 +422,47 @@ export default function App() {
             </span>
           </div>
         </div>
-      </a>
+      </motion.a>
 
       {/* Navigation */}
-      <nav className="fixed top-0 left-0 w-full z-[100] transition-all duration-500 ease-in-out translate-y-0 bg-white/95 dark:bg-[#050a06]/90 backdrop-blur-md py-4 border-b border-slate-200 dark:border-white/5 shadow-2xl">
+      <motion.nav 
+        style={{ paddingTop: navPadding, paddingBottom: navPadding }}
+        className="fixed top-0 left-0 w-full z-[100] transition-colors duration-500 ease-in-out translate-y-0 bg-white/95 dark:bg-[#0a0500]/90 backdrop-blur-md border-b border-slate-200 dark:border-white/5 shadow-2xl"
+      >
         <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
           <div className="flex items-center gap-2 group cursor-pointer">
-            <img
-              alt="Potencia das Baterias Logo"
+            <motion.img
+              style={{ scale: logoScale, transformOrigin: "left center" }}
+              alt="Mundial Baterias Logo"
               className="h-12 md:h-16 w-auto object-contain transition-transform group-hover:scale-105"
-              src="https://i.imgur.com/nrxPkmP.png"
+              src="https://i.imgur.com/Aw08okd.png"
             />
           </div>
           <div className="hidden md:flex items-center gap-8 text-xs font-bold tracking-widest text-slate-600 dark:text-gray-300">
-            <a href="#" className="hover:text-green-500 transition-colors uppercase">
+            <a href="#" className="hover:text-orange-500 transition-colors uppercase">
               Início
             </a>
             <a
               href="#produtos"
-              className="hover:text-green-500 transition-colors uppercase"
+              className="hover:text-orange-500 transition-colors uppercase"
             >
               Produtos
             </a>
             <a
               href="#unidades"
-              className="hover:text-green-500 transition-colors uppercase"
+              className="hover:text-orange-500 transition-colors uppercase"
             >
               Lojas
             </a>
             <a
               href="#depoimentos"
-              className="hover:text-green-500 transition-colors uppercase"
+              className="hover:text-orange-500 transition-colors uppercase"
             >
               Avaliações
             </a>
             <a
               href="#faq"
-              className="hover:text-green-500 transition-colors uppercase"
+              className="hover:text-orange-500 transition-colors uppercase"
             >
               Dúvidas
             </a>
@@ -310,10 +476,10 @@ export default function App() {
               <Sun className="w-4 h-4" />
             </button>
             <a
-              href="tel:61991004308"
-              className="flex items-center gap-2 text-white bg-green-600 px-6 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest hover:bg-white hover:text-green-600 transition-all duration-300 shadow-lg shadow-green-600/20 border border-transparent hover:border-green-600 hover-electric-green"
+              href="tel:62993147640"
+              className="flex items-center gap-2 text-white bg-orange-600 px-6 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest hover:bg-white hover:text-orange-600 transition-all duration-300 shadow-lg shadow-orange-600/20 border border-transparent hover:border-orange-600 hover-electric-orange"
             >
-              <Phone className="w-3.5 h-3.5" /> Deseja Pedir por Telefone? Ligue: 61991004308
+              <Phone className="w-3.5 h-3.5" /> Deseja Pedir por Telefone? Ligue: (62) 99314-7640
             </a>
           </div>
           <div className="flex items-center gap-4 md:hidden">
@@ -333,20 +499,20 @@ export default function App() {
             </button>
           </div>
         </div>
-      </nav>
+      </motion.nav>
 
       {/* Mobile Menu */}
       <div
-        className={`fixed inset-0 z-[200] bg-slate-50 dark:bg-[#050a06] transition-transform duration-500 transform ${
+        className={`fixed inset-0 z-[200] bg-slate-50 dark:bg-[#0a0500] transition-transform duration-500 transform ${
           isMenuOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
       >
         <div className="p-6 flex flex-col h-full">
           <div className="flex justify-between items-center mb-12">
             <img
-              alt="Potencia das Baterias Logo"
+              alt="Mundial Baterias Logo"
               className="h-12 w-auto object-contain"
-              src="https://i.imgur.com/nrxPkmP.png"
+              src="https://i.imgur.com/Aw08okd.png"
             />
             <button
               onClick={() => setIsMenuOpen(false)}
@@ -381,39 +547,40 @@ export default function App() {
       <section className="relative min-h-screen flex items-center md:items-start pb-20 md:pb-48 md:pt-28">
         <div className="w-full md:max-w-7xl md:mx-auto md:px-6 relative z-40">
           <div className="relative md:rounded-[40px] overflow-hidden bg-slate-900 shadow-2xl min-h-screen md:min-h-[600px] flex items-center">
-            {/* Background Image */}
-            <motion.div style={{ y, scale }} className="absolute inset-0 w-full h-full">
-              <img 
-                src="https://eletronautocenter.com.br/wp-content/uploads/2024/08/Helair_Carousel_3_1920x610-1.jpg" 
-                alt="Mecânico instalando bateria" 
-                className="w-full h-full object-cover object-[65%_center] md:object-center opacity-50"
+            {/* Background Image/Video */}
+            <motion.div style={{ y, scale }} className="absolute inset-0 w-full h-full overflow-hidden">
+              <iframe 
+                src="https://www.youtube.com/embed/IWRINHc5egM?autoplay=1&mute=1&loop=1&playlist=IWRINHc5egM&controls=0&showinfo=0&rel=0" 
+                title="Mundial Baterias Video" 
+                className="absolute top-1/2 left-1/2 w-[150vw] h-[84.37vw] min-h-[150vh] min-w-[266.66vh] -translate-x-1/2 -translate-y-1/2 opacity-50 pointer-events-none max-w-none"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               />
             </motion.div>
             <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent"></div>
 
             {/* Content Overlay */}
             <div className="relative z-50 p-8 pt-32 pb-48 md:px-16 md:pb-16 md:pt-64 max-w-3xl">
-              <div className="flex items-center gap-2 text-green-500 font-bold text-xs tracking-[0.4em] mb-6 uppercase animate-in fade-in slide-in-from-left duration-700">
-                <span className="w-8 h-[2px] bg-green-500"></span>Loja de Baterias Especializada
+              <div className="flex items-center gap-2 text-orange-500 font-bold text-xs tracking-[0.4em] mb-6 uppercase animate-in fade-in slide-in-from-left duration-700">
+                <span className="w-8 h-[2px] bg-orange-500"></span>Loja de Baterias Especializada
               </div>
               <h1 className="text-3xl md:text-6xl font-black tracking-tighter leading-[0.9] mb-8 italic uppercase text-white relative animate-in fade-in slide-in-from-left duration-700 delay-100">
-                BATERIAS TAGUATINGA DF
+                BATERIAS GOIÂNIA GO
                 <br />
-                <span className="text-green-500 inline-flex items-center gap-2">
+                <span className="text-orange-500 inline-flex items-center gap-2">
                   TROCA NA HORA!{' '}
                   <Zap className="w-8 h-8 md:w-12 md:h-12 fill-yellow-400 text-yellow-400 animate-pulse hidden md:block" />
                 </span>
               </h1>
               <p className="text-gray-200 text-lg max-w-md mb-10 leading-relaxed animate-in fade-in slide-in-from-left duration-700 delay-200">
-                Entrega e instalação gratuita de baterias Heliar em
-                até 40 minutos em Taguatinga e região.
+                Entrega e instalação gratuita de baterias em
+                até 40 minutos em Goiânia e região.
               </p>
               <div className="flex flex-wrap gap-6 items-center animate-in fade-in slide-in-from-left duration-700 delay-300 relative z-30">
                 <a
                   href="https://wa.link/zgopqx"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="bg-green-600 text-white px-10 py-5 rounded-lg font-black italic tracking-widest hover:bg-white hover:text-green-600 transition-all flex items-center gap-3 group shadow-lg shadow-green-600/20 hover-electric-green relative z-50"
+                  className="bg-orange-600 text-white px-10 py-5 rounded-lg font-black italic tracking-widest hover:bg-white hover:text-orange-600 transition-all flex items-center gap-3 group shadow-lg shadow-orange-600/20 hover-electric-orange relative z-50"
                 >
                   WHATSAPP RÁPIDO{' '}
                   <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
@@ -423,7 +590,7 @@ export default function App() {
           </div>
 
           {/* Floating Search Widget */}
-          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 w-[90%] max-w-5xl bg-slate-50 dark:bg-[#0a120b]/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-slate-200 dark:border-green-900/30 p-8 md:p-10 animate-in fade-in zoom-in duration-700 delay-500 z-40">
+          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 w-[90%] max-w-5xl bg-slate-50 dark:bg-[#120500]/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-slate-200 dark:border-orange-900/30 p-8 md:p-10 animate-in fade-in zoom-in duration-700 delay-500 z-40">
             <h2 className="text-center text-xl md:text-2xl font-black italic tracking-tight text-slate-900 dark:text-white mb-8">
               Peça de onde estiver e pague apenas na entrega!
             </h2>
@@ -448,7 +615,7 @@ export default function App() {
                 href={getWhatsappLink()}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center justify-center gap-2 bg-green-600 text-white font-black uppercase tracking-widest py-4 rounded-xl hover:bg-green-700 transition-all shadow-lg shadow-green-600/20 hover-electric-green"
+                className="flex items-center justify-center gap-2 bg-orange-600 text-white font-black uppercase tracking-widest py-4 rounded-xl hover:bg-orange-700 transition-all shadow-lg shadow-orange-600/20 hover-electric-orange"
               >
                 Confira os preços
               </a>
@@ -461,49 +628,71 @@ export default function App() {
       <section id="unidades" className="relative z-30 pt-64 pb-32 bg-white dark:bg-transparent">
         <FadeIn className="max-w-7xl mx-auto px-6">
           <div className="mb-20">
-            <div className="flex items-center gap-2 text-green-500 font-bold text-xs tracking-[0.4em] mb-4 uppercase">
-              <span className="w-8 h-[2px] bg-green-500"></span>Onde Estamos
+            <div className="flex items-center gap-2 text-orange-500 font-bold text-xs tracking-[0.4em] mb-4 uppercase">
+              <span className="w-8 h-[2px] bg-orange-500"></span>Onde Estamos
             </div>
             <h2 className="text-3xl md:text-6xl font-black tracking-tighter uppercase italic text-slate-900 dark:text-white">
               Nossas Unidades
             </h2>
           </div>
-          <div className="grid md:grid-cols-2 gap-10">
-            {/* Taguatinga */}
-            <div className="group relative bg-slate-50 dark:bg-[#0a120b] rounded-[40px] overflow-hidden border border-slate-200 dark:border-white/5 hover:border-green-600/30 transition-all duration-500 shadow-2xl">
-              <div className="aspect-[16/9] overflow-hidden relative">
-                <img
-                  alt="Loja Potencia das Baterias Taguatinga"
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                  src="https://lh3.googleusercontent.com/p/AF1QipMixq16-rvnV2l8OSzjPcjFWQh-eBuZRXVao6v9=s680-w680-h510-rw"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 dark:from-neutral-900 via-transparent to-transparent opacity-60"></div>
-                <div className="absolute top-6 left-6 bg-green-600 text-white px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-widest">
+          <div className="max-w-5xl mx-auto">
+            {/* Jardim América */}
+            <div className="group relative bg-slate-50 dark:bg-[#120500] rounded-[40px] overflow-hidden border border-slate-200 dark:border-white/5 hover:border-orange-600/30 transition-all duration-500 shadow-2xl flex flex-col md:flex-row">
+              <div className="relative w-full md:w-1/2 min-h-[300px] md:min-h-full overflow-hidden">
+                {unitImages.map((img, index) => (
+                  <img
+                    key={img}
+                    alt={`Loja Mundial Baterias Goiânia ${index + 1}`}
+                    className={`absolute inset-0 w-full h-full object-cover transition-all duration-1000 ${
+                      index === currentUnitImageIndex ? 'opacity-100 scale-100' : 'opacity-0 scale-105'
+                    } group-hover:scale-110`}
+                    src={img}
+                  />
+                ))}
+                <div className="absolute inset-0 bg-gradient-to-t md:bg-gradient-to-r from-slate-900/80 dark:from-neutral-900 via-transparent to-transparent opacity-60"></div>
+                <div className="absolute top-6 left-6 bg-orange-600 text-white px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-widest z-10">
                   Loja Física
                 </div>
+                
+                {/* Dots Indicator */}
+                <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-10">
+                  {unitImages.map((_, index) => (
+                    <button
+                      key={index}
+                      onClick={() => setCurrentUnitImageIndex(index)}
+                      className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                        index === currentUnitImageIndex 
+                          ? 'bg-orange-500 w-6' 
+                          : 'bg-white/50 hover:bg-white/80'
+                      }`}
+                      aria-label={`Ir para imagem ${index + 1}`}
+                    />
+                  ))}
+                </div>
               </div>
-              <div className="p-10">
-                <h3 className="text-3xl font-black italic uppercase tracking-tighter mb-6 text-slate-900 dark:text-white group-hover:text-green-500 transition-colors">
-                  Taguatinga
+              <div className="p-8 md:p-12 w-full md:w-1/2 flex flex-col justify-center">
+                <h3 className="text-3xl font-black italic uppercase tracking-tighter mb-6 text-slate-900 dark:text-white group-hover:text-orange-500 transition-colors">
+                  Jardim América
                 </h3>
                 <div className="space-y-6 mb-10">
                   <div className="flex items-start gap-4">
-                    <MapPin className="w-5 h-5 text-green-600 shrink-0 mt-1" />
+                    <MapPin className="w-5 h-5 text-orange-600 shrink-0 mt-1" />
                     <p className="text-slate-600 dark:text-gray-400 text-sm font-medium leading-relaxed">
-                      St. D Norte QND 35 Lojas 6/7 - Taguatinga
+                      Av. C, 231 - QD 521 LT 01 , N° 700 - Jardim América, Goiânia - GO
                     </p>
                   </div>
                   <div className="flex items-center gap-4">
-                    <Clock className="w-5 h-5 text-green-600 shrink-0" />
+                    <Clock className="w-5 h-5 text-orange-600 shrink-0" />
                     <p className="text-slate-600 dark:text-gray-400 text-sm font-medium">
                       Seg a Sex: 08h às 18h <br />
                       Sáb das 08h as 14h
                     </p>
                   </div>
                   <div className="flex items-center gap-4">
-                    <Phone className="w-5 h-5 text-green-600 shrink-0" />
+                    <Phone className="w-5 h-5 text-orange-600 shrink-0" />
                     <p className="text-slate-900 dark:text-white text-lg font-black tracking-tight">
-                      (61) 3375-1701
+                      (62) 99314-7640 <br />
+                      (62) 99525-1379
                     </p>
                   </div>
                 </div>
@@ -520,66 +709,7 @@ export default function App() {
                     href="https://wa.link/zgopqx"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center justify-center gap-2 py-4 bg-green-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-green-700 transition-all shadow-lg shadow-green-600/20 hover-electric-green"
-                  >
-                    <MessageSquare className="w-3.5 h-3.5" /> WhatsApp
-                  </a>
-                </div>
-              </div>
-            </div>
-
-            {/* Taguatinga Norte */}
-            <div className="group relative bg-slate-50 dark:bg-[#0a120b] rounded-[40px] overflow-hidden border border-slate-200 dark:border-white/5 hover:border-green-600/30 transition-all duration-500 shadow-2xl">
-              <div className="aspect-[16/9] overflow-hidden relative">
-                <img
-                  alt="Loja Potencia das Baterias Taguatinga Norte"
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                  src="https://lh3.googleusercontent.com/gps-cs-s/AHVAwepRhqVrnanScwV8RbV9q1_dWgqgIDHroG1cB9WVHfA_etC6NcysT-HjpRvoBIo3x1uP7FhB5GjUspKb9rzTI3jczGP720QPOOgE2SuI05UwQOuc1MRLzlP-EuXqu8d6ARtJWbXU=s680-w680-h510-rw"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 dark:from-neutral-900 via-transparent to-transparent opacity-60"></div>
-                <div className="absolute top-6 left-6 bg-green-600 text-white px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-widest">
-                  Loja Física
-                </div>
-              </div>
-              <div className="p-10">
-                <h3 className="text-3xl font-black italic uppercase tracking-tighter mb-6 text-slate-900 dark:text-white group-hover:text-green-500 transition-colors">
-                  Taguatinga Norte
-                </h3>
-                <div className="space-y-6 mb-10">
-                  <div className="flex items-start gap-4">
-                    <MapPin className="w-5 h-5 text-green-600 shrink-0 mt-1" />
-                    <p className="text-slate-600 dark:text-gray-400 text-sm font-medium leading-relaxed">
-                      QNH 11 Lote 1 Loja 5 - Taguatinga Norte
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <Clock className="w-5 h-5 text-green-600 shrink-0" />
-                    <p className="text-slate-600 dark:text-gray-400 text-sm font-medium">
-                      Seg a Sex: 08h às 18h <br />
-                      Sáb das 08h as 14h
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <Phone className="w-5 h-5 text-green-600 shrink-0" />
-                    <p className="text-slate-900 dark:text-white text-lg font-black tracking-tight">
-                      (61) 3047-2306
-                    </p>
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <a
-                    href="https://maps.google.com"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center justify-center gap-2 py-4 bg-slate-200 dark:bg-white/5 border border-slate-300 dark:border-white/10 rounded-2xl text-[10px] font-black uppercase tracking-widest text-slate-900 dark:text-white hover:bg-slate-900 dark:hover:bg-white hover:text-white dark:hover:text-neutral-900 transition-all"
-                  >
-                    <MapPin className="w-3.5 h-3.5" /> Ver Mapa
-                  </a>
-                  <a
-                    href="https://wa.link/zgopqx"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center justify-center gap-2 py-4 bg-green-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-green-700 transition-all shadow-lg shadow-green-600/20 hover-electric-green"
+                    className="flex items-center justify-center gap-2 py-4 bg-orange-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-orange-700 transition-all shadow-lg shadow-orange-600/20 hover-electric-orange"
                   >
                     <MessageSquare className="w-3.5 h-3.5" /> WhatsApp
                   </a>
@@ -590,29 +720,29 @@ export default function App() {
         </FadeIn>
       </section>
 
-      {/* Why Choose Heliar Section */}
+      {/* Why Choose Mundial Baterias Section */}
       <section id="produtos" className="relative z-30 py-32 bg-white dark:bg-transparent">
         <FadeIn className="max-w-7xl mx-auto px-6">
           <div className="mb-16">
             <h2 className="text-3xl md:text-5xl font-black italic uppercase text-slate-900 dark:text-white mb-4">
-              POR QUE <span className="text-slate-500">ESCOLHER HELIAR?</span>
+              POR QUE <span className="text-slate-500">ESCOLHER A MUNDIAL BATERIAS?</span>
             </h2>
             <p className="text-slate-600 dark:text-gray-400 text-lg font-medium">
-              Confira os benefícios que fazem da Heliar a melhor bateria do Brasil:
+              Confira os benefícios que fazem da Mundial Baterias a sua melhor escolha:
             </p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-12 mb-20">
             <div className="flex gap-6">
               <div className="shrink-0">
-                <Award className="w-12 h-12 text-green-500" strokeWidth={1.5} />
+                <Award className="w-12 h-12 text-orange-500" strokeWidth={1.5} />
               </div>
               <div>
                 <h3 className="text-xl font-black uppercase text-slate-900 dark:text-white mb-2">
-                  Garantia Heliar
+                  Garantia de Fábrica
                 </h3>
                 <p className="text-slate-600 dark:text-gray-400 leading-relaxed">
-                  Oferecemos até 2 anos de garantia em nossas baterias. A maior do mercado.
+                  Oferecemos baterias com garantia de fábrica, garantindo a sua tranquilidade e segurança.
                 </p>
               </div>
             </div>
@@ -620,30 +750,30 @@ export default function App() {
             <div className="flex gap-6">
               <div className="shrink-0">
                 <div className="relative">
-                  <Shield className="w-12 h-12 text-green-500" strokeWidth={1.5} />
-                  <Zap className="w-5 h-5 text-green-500 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 fill-current" />
+                  <Shield className="w-12 h-12 text-orange-500" strokeWidth={1.5} />
+                  <Zap className="w-5 h-5 text-orange-500 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 fill-current" />
                 </div>
               </div>
               <div>
                 <h3 className="text-xl font-black uppercase text-slate-900 dark:text-white mb-2">
-                  Durabilidade
+                  Alta Durabilidade
                 </h3>
                 <p className="text-slate-600 dark:text-gray-400 leading-relaxed">
-                  Nossa tecnologia de grades PowerFrame garante até 66% mais durabilidade do que as baterias sem essa tecnologia.
+                  Trabalhamos com baterias de alta tecnologia que garantem maior durabilidade e desempenho para o seu veículo.
                 </p>
               </div>
             </div>
 
             <div className="flex gap-6">
               <div className="shrink-0">
-                <ThumbsUp className="w-12 h-12 text-green-500" strokeWidth={1.5} />
+                <ThumbsUp className="w-12 h-12 text-orange-500" strokeWidth={1.5} />
               </div>
               <div>
                 <h3 className="text-xl font-black uppercase text-slate-900 dark:text-white mb-2">
-                  Equipamento Original
+                  As Melhores Marcas
                 </h3>
                 <p className="text-slate-600 dark:text-gray-400 leading-relaxed">
-                  Heliar atende a exigências internacionais de performance e é líder absoluta nas montadoras.
+                  Atendemos a exigências rigorosas de performance trabalhando apenas com as marcas líderes do mercado.
                 </p>
               </div>
             </div>
@@ -651,8 +781,8 @@ export default function App() {
 
           <div className="relative w-full aspect-[21/9] md:aspect-[3/1] bg-gradient-to-b from-transparent to-slate-50 dark:to-neutral-900/50 rounded-3xl flex items-end justify-center overflow-hidden">
             <img 
-              src="https://www.heliarexpress.com.br/content/dist/img/descricao-baterias.png" 
-              alt="Linha de Baterias Heliar" 
+              src="https://marvanbaterias.com.br/portal/wp-content/uploads/2018/04/capa_moura.png" 
+              alt="Marcas de Baterias" 
               className="w-full h-full object-contain object-bottom hover:scale-105 transition-transform duration-700"
               onError={(e) => {
                 e.currentTarget.src = "https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?auto=format&fit=crop&q=80&w=1200";
@@ -663,19 +793,75 @@ export default function App() {
         </FadeIn>
       </section>
 
+      {/* Parceiros Oficiais Section */}
+      <section id="marcas" className="relative z-30 py-32 bg-slate-50 dark:bg-[#0a0500] border-y border-slate-200 dark:border-white/5 overflow-hidden">
+        <FadeIn className="max-w-7xl mx-auto px-6">
+          <div className="text-center mb-20">
+            <div className="flex items-center justify-center gap-2 text-orange-500 font-bold text-xs tracking-[0.4em] mb-4 uppercase">
+              <span className="w-8 h-[2px] bg-orange-500"></span>Parceiros Oficiais<span className="w-8 h-[2px] bg-orange-500"></span>
+            </div>
+            <h2 className="text-3xl md:text-6xl font-black tracking-tighter italic uppercase mb-6 text-slate-900 dark:text-white">
+              As Melhores Marcas
+            </h2>
+            <p className="text-slate-600 dark:text-gray-400 text-lg font-medium max-w-2xl mx-auto">
+              Trabalhamos apenas com baterias certificadas e com garantia de fábrica. Escolha a marca de sua preferência e solicite um orçamento via WhatsApp.
+            </p>
+          </div>
+        </FadeIn>
 
+        <div className="relative group/carousel w-full mt-10">
+          {/* Navigation Buttons */}
+          <button 
+            onClick={scrollBrandsLeft}
+            className="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 z-20 bg-white dark:bg-neutral-800 p-3 rounded-full shadow-xl border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white hover:text-orange-500 hover:border-orange-500 transition-all opacity-100 md:opacity-0 md:group-hover/carousel:opacity-100"
+          >
+            <ChevronLeft className="w-6 h-6" />
+          </button>
+          
+          <button 
+            onClick={scrollBrandsRight}
+            className="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 z-20 bg-white dark:bg-neutral-800 p-3 rounded-full shadow-xl border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white hover:text-orange-500 hover:border-orange-500 transition-all opacity-100 md:opacity-0 md:group-hover/carousel:opacity-100"
+          >
+            <ChevronRight className="w-6 h-6" />
+          </button>
+
+          <div 
+            ref={brandsCarouselRef}
+            className="flex overflow-x-auto gap-6 pb-12 pt-4 px-6 md:px-12 w-full"
+            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+          >
+            {batteryBrands.map((brand, index) => (
+              <div key={index} className="w-[85vw] md:w-[400px] shrink-0 group bg-white dark:bg-[#120500] rounded-3xl p-6 border border-slate-200 dark:border-white/5 hover:border-orange-500/50 transition-all duration-300 shadow-xl flex flex-col h-full">
+                  <div className="w-full h-48 bg-slate-100 dark:bg-white/5 rounded-2xl mb-6 flex items-center justify-center overflow-hidden relative">
+                    <div className="absolute top-4 left-4 bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400 text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full z-10">
+                      {brand.tag}
+                    </div>
+                    <img src={brand.img} alt={`Bateria ${brand.name}`} className="w-full h-full object-contain p-4 group-hover:scale-110 transition-transform duration-500 drop-shadow-xl" />
+                  </div>
+                  <h3 className="text-2xl font-black uppercase italic text-slate-900 dark:text-white mb-3">{brand.name}</h3>
+                  <p className="text-slate-600 dark:text-gray-400 text-sm mb-8 flex-grow">
+                    {brand.desc}
+                  </p>
+                  <a href={getWhatsappLink()} target="_blank" rel="noopener noreferrer" className="w-full py-4 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-orange-600 dark:hover:bg-orange-500 hover:text-white transition-all text-center">
+                    Consultar Valor
+                  </a>
+                </div>
+              ))}
+            </div>
+          </div>
+      </section>
 
       {/* Testimonials Section */}
       <section
         id="depoimentos"
         className="relative z-30 py-32 bg-white dark:bg-transparent overflow-hidden"
       >
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-[radial-gradient(circle_at_center,rgba(22,163,74,0.05)_0%,transparent_70%)] pointer-events-none"></div>
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-[radial-gradient(circle_at_center,rgba(249,115,22,0.05)_0%,transparent_70%)] pointer-events-none"></div>
         <FadeIn className="max-w-7xl mx-auto px-6 relative z-10">
           <div className="text-center mb-20">
-            <div className="flex items-center justify-center gap-2 text-green-500 font-bold text-xs tracking-[0.4em] mb-4 uppercase">
-              <span className="w-8 h-[2px] bg-green-500"></span>O que dizem sobre
-              nós<span className="w-8 h-[2px] bg-green-500"></span>
+            <div className="flex items-center justify-center gap-2 text-orange-500 font-bold text-xs tracking-[0.4em] mb-4 uppercase">
+              <span className="w-8 h-[2px] bg-orange-500"></span>O que dizem sobre
+              nós<span className="w-8 h-[2px] bg-orange-500"></span>
             </div>
             <h2 className="text-3xl md:text-7xl font-black tracking-tighter italic uppercase mb-6 text-slate-900 dark:text-white">
               Avaliações reais
@@ -691,32 +877,66 @@ export default function App() {
               </span>
             </div>
           </div>
-          <div className="grid md:grid-cols-3 gap-8">
-            {[
-              {
-                name: 'Ricardo Santos',
-                time: 'há uma semana',
-                text: '"Excelente atendimento! Minha bateria pifou no meio da avenida e em menos de 30 minutos o técnico chegou com uma Moura nova."',
-                img: 'https://i.pravatar.cc/150?u=ricardo',
-              },
-              {
-                name: 'Juliana Costa',
-                time: 'há 1 mês',
-                text: '"Melhor loja de baterias da região. O teste do alternador me salvou de gastar dinheiro à toa."',
-                img: 'https://i.pravatar.cc/150?u=juliana',
-              },
-              {
-                name: 'Marcos Oliveira',
-                time: 'há 3 meses',
-                text: '"Preço competitivo e as melhores marcas. Comprei uma Heliar para meu Start-Stop e o serviço foi impecável."',
-                img: 'https://i.pravatar.cc/150?u=marcos',
-              },
-            ].map((review, index) => (
-              <div
-                key={index}
-                className="group relative bg-slate-50 dark:bg-white/10 backdrop-blur-lg rounded-[32px] p-8 border border-slate-200 dark:border-white/10 hover:border-green-600/30 dark:hover:border-white/20 transition-all duration-500 flex flex-col shadow-xl"
-              >
-                <div className="absolute top-8 right-8 text-slate-200 dark:text-white/5 group-hover:text-green-600/10 dark:group-hover:text-green-600/20 transition-colors duration-500">
+          <div className="relative group/carousel">
+            {/* Navigation Buttons */}
+            <button 
+              onClick={scrollLeft} 
+              className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 md:-translate-x-6 z-20 bg-white dark:bg-neutral-800 p-3 rounded-full shadow-xl border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white hover:text-orange-500 hover:border-orange-500 transition-all opacity-100 md:opacity-0 md:group-hover/carousel:opacity-100"
+              aria-label="Anterior"
+            >
+              <ChevronLeft className="w-6 h-6" />
+            </button>
+            
+            <button 
+              onClick={scrollRight} 
+              className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 md:translate-x-6 z-20 bg-white dark:bg-neutral-800 p-3 rounded-full shadow-xl border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white hover:text-orange-500 hover:border-orange-500 transition-all opacity-100 md:opacity-0 md:group-hover/carousel:opacity-100"
+              aria-label="Próximo"
+            >
+              <ChevronRight className="w-6 h-6" />
+            </button>
+
+            <div 
+              ref={carouselRef}
+              className="flex overflow-x-auto snap-x snap-mandatory gap-6 pb-8 pt-4 px-4 -mx-4 scroll-smooth"
+              style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+            >
+              {[
+                {
+                  name: 'Lucas Carvalho',
+                  time: 'há uma semana',
+                  text: '"Minha bateria falhou no meio do feriado. Chamei no WhatsApp, combinei rapidão e o cara apareceu em 15 minutos com uma bateria nova e a trocou ligeiramente. Recomendo muitíssimo!"',
+                  img: 'https://i.pravatar.cc/150?u=lucas',
+                },
+                {
+                  name: 'Victor Fernandes',
+                  time: 'há 1 mês',
+                  text: '"Fui atendido pelo Christian, ótimo atendimento, melhor preço que encontrei e ainda veio até minha residência fazer a troca na hora. Recomendo demais!"',
+                  img: 'https://i.pravatar.cc/150?u=victor',
+                },
+                {
+                  name: 'Jhany Martins',
+                  time: 'há 2 meses',
+                  text: '"Rapidez e eficiência! Resolveu o que precisava em poucos minutos com preço bom e justo. Pessoal muito educado e prestativo também. Indico muito!"',
+                  img: 'https://i.pravatar.cc/150?u=jhany',
+                },
+                {
+                  name: 'Thiago Oliveira',
+                  time: 'há 3 meses',
+                  text: '"Não é sobre o preço apesar que eles possuem o melhor preço do mercado, prestam um atendimento honesto e de grande excelência. Super atencioso no atendimento e tirou todas as dúvidas. Parabéns"',
+                  img: 'https://i.pravatar.cc/150?u=thiago',
+                },
+                {
+                  name: 'Marcello Spirandelli da Silva',
+                  time: 'há 4 meses',
+                  text: '"Todos bem atenciosos no atendimento e serviço. Foi rápido e sem problema. Além da troca da bateria ainda fizeram uma limpeza caprichada nos terminais e cabos. Também testaram se o alternador estava carregando."',
+                  img: 'https://i.pravatar.cc/150?u=marcello',
+                },
+              ].map((review, index) => (
+                <div
+                  key={index}
+                  className="w-[85vw] md:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)] snap-start shrink-0 group relative bg-slate-50 dark:bg-white/10 backdrop-blur-lg rounded-[32px] p-8 border border-slate-200 dark:border-white/10 hover:border-orange-600/30 dark:hover:border-white/20 transition-all duration-500 flex flex-col shadow-xl"
+                >
+                <div className="absolute top-8 right-8 text-slate-200 dark:text-white/5 group-hover:text-orange-600/10 dark:group-hover:text-orange-600/20 transition-colors duration-500">
                   <Quote className="w-12 h-12 fill-current" />
                 </div>
                 <div className="flex items-center gap-4 mb-8">
@@ -777,10 +997,11 @@ export default function App() {
                       Google Review
                     </span>
                   </div>
-                  <ExternalLink className="w-3.5 h-3.5 text-slate-400 dark:text-gray-500 group-hover:text-green-600 dark:group-hover:text-white transition-colors" />
+                  <ExternalLink className="w-3.5 h-3.5 text-slate-400 dark:text-gray-500 group-hover:text-orange-600 dark:group-hover:text-white transition-colors" />
                 </div>
               </div>
             ))}
+            </div>
           </div>
         </FadeIn>
       </section>
@@ -808,15 +1029,15 @@ export default function App() {
               },
               {
                 q: 'Quais as formas de pagamento disponíveis?',
-                a: 'Aceitamos cartões de crédito (em até 10x), débito, PIX e dinheiro diretamente ao técnico.',
+                a: 'Disponibilizamos várias opções de pagamento! Pagamentos à vista você ganha 5% de desconto (Sendo no dinheiro ou Pix) ou pague com o seu cartão de crédito e parcelamos em até 10x no cartão e o pagamento só é efetuado após instalação bem-sucedida da sua bateria, seja ela do seu carro ou caminhão.',
               },
             ].map((item, index) => (
               <div
                 key={index}
                 className={`group border rounded-2xl overflow-hidden transition-all duration-300 ${
                   openFaqIndex === index
-                    ? 'bg-white dark:bg-[#0a120b] border-green-500 dark:border-green-500 shadow-[0_0_20px_rgba(34,197,94,0.15)]'
-                    : 'bg-white dark:bg-[#0a120b]/50 border-slate-200 dark:border-white/5 hover:border-green-500/30'
+                    ? 'bg-white dark:bg-[#120500] border-orange-500 dark:border-orange-500 shadow-[0_0_20px_rgba(249,115,22,0.15)]'
+                    : 'bg-white dark:bg-[#120500]/50 border-slate-200 dark:border-white/5 hover:border-orange-500/30'
                 }`}
               >
                 <button
@@ -825,21 +1046,21 @@ export default function App() {
                 >
                   <h3 className={`font-bold text-lg italic uppercase tracking-tight transition-colors duration-300 ${
                     openFaqIndex === index 
-                      ? 'text-green-600 dark:text-green-400' 
-                      : 'text-slate-900 dark:text-white group-hover:text-green-600 dark:group-hover:text-green-400'
+                      ? 'text-orange-600 dark:text-orange-400' 
+                      : 'text-slate-900 dark:text-white group-hover:text-orange-600 dark:group-hover:text-orange-400'
                   }`}>
                     {item.q}
                   </h3>
                   <div className={`relative flex items-center justify-center w-8 h-8 rounded-full transition-all duration-300 ${
                     openFaqIndex === index 
-                      ? 'bg-green-100 dark:bg-green-900/30 rotate-180' 
-                      : 'bg-slate-100 dark:bg-white/5 group-hover:bg-green-50 dark:group-hover:bg-green-900/20'
+                      ? 'bg-orange-100 dark:bg-orange-900/30 rotate-180' 
+                      : 'bg-slate-100 dark:bg-white/5 group-hover:bg-orange-50 dark:group-hover:bg-orange-900/20'
                   }`}>
                     <ChevronDown
                       className={`w-5 h-5 transition-colors duration-300 ${
                         openFaqIndex === index 
-                          ? 'text-green-600 dark:text-green-400' 
-                          : 'text-slate-500 dark:text-white group-hover:text-green-600 dark:group-hover:text-green-400'
+                          ? 'text-orange-600 dark:text-orange-400' 
+                          : 'text-slate-500 dark:text-white group-hover:text-orange-600 dark:group-hover:text-orange-400'
                       }`}
                     />
                   </div>
@@ -854,7 +1075,7 @@ export default function App() {
                       className="overflow-hidden"
                     >
                       <div className="p-6 pt-0">
-                        <div className="h-px w-full bg-gradient-to-r from-transparent via-green-500/20 to-transparent mb-4"></div>
+                        <div className="h-px w-full bg-gradient-to-r from-transparent via-orange-500/20 to-transparent mb-4"></div>
                         <p className="text-slate-600 dark:text-gray-300 leading-relaxed">
                           {item.a}
                         </p>
@@ -869,11 +1090,11 @@ export default function App() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-neutral-900 dark:bg-[#020402] pt-32 pb-32 md:pb-12 border-t border-neutral-800 relative overflow-hidden transition-colors duration-300">
+      <footer className="bg-neutral-900 dark:bg-[#050200] pt-32 pb-32 md:pb-12 border-t border-neutral-800 relative overflow-hidden transition-colors duration-300">
         {/* Background Image */}
         <div className="absolute inset-0 z-0 opacity-5 pointer-events-none">
           <img 
-            src="https://www.heliarexpress.com.br/content/dist/img/descricao-baterias.png" 
+            src="https://marcaspelomundo.com.br/wp-content/uploads/2023/05/moura.png" 
             alt="Background" 
             className="w-full h-full object-cover object-bottom"
           />
@@ -883,9 +1104,9 @@ export default function App() {
             <div className="col-span-1">
               <div className="flex items-center gap-2 mb-8">
                 <img
-                  alt="Potencia das Baterias Logo"
+                  alt="Mundial Baterias Logo"
                   className="h-12 w-auto object-contain"
-                  src="https://i.imgur.com/aLVAX0x.png"
+                  src="https://i.imgur.com/Aw08okd.png"
                 />
               </div>
               <p className="text-neutral-400 text-sm leading-relaxed mb-10 font-medium italic">
@@ -893,14 +1114,14 @@ export default function App() {
                 na região.
               </p>
               <a
-                href="tel:61991004308"
-                className="hidden md:inline-flex items-center gap-2 text-white bg-green-600 px-6 py-3 rounded-full text-[10px] font-black uppercase tracking-widest hover:bg-white hover:text-green-600 transition-all shadow-lg shadow-green-600/20 hover-electric-green"
+                href="tel:62993147640"
+                className="hidden md:inline-flex items-center gap-2 text-white bg-orange-600 px-6 py-3 rounded-full text-[10px] font-black uppercase tracking-widest hover:bg-white hover:text-orange-600 transition-all shadow-lg shadow-orange-600/20 hover-electric-orange"
               >
-                <Phone className="w-3.5 h-3.5" /> Deseja Pedir por Telefone? Ligue: 61991004308
+                <Phone className="w-3.5 h-3.5" /> Deseja Pedir por Telefone? Ligue: (62) 99314-7640
               </a>
             </div>
             <div>
-              <h4 className="font-black mb-10 uppercase tracking-[0.3em] text-[10px] text-green-500 italic">
+              <h4 className="font-black mb-10 uppercase tracking-[0.3em] text-[10px] text-orange-500 italic">
                 Serviços
               </h4>
               <ul className="space-y-4 text-sm text-neutral-400 font-bold uppercase tracking-widest">
@@ -910,7 +1131,7 @@ export default function App() {
               </ul>
             </div>
             <div>
-              <h4 className="font-black mb-10 uppercase tracking-[0.3em] text-[10px] text-green-500 italic">
+              <h4 className="font-black mb-10 uppercase tracking-[0.3em] text-[10px] text-orange-500 italic">
                 Socorro
               </h4>
               <ul className="space-y-4 text-sm text-neutral-400 font-bold uppercase tracking-widest">
@@ -929,24 +1150,24 @@ export default function App() {
               </ul>
             </div>
             <div>
-              <h4 className="font-black mb-10 uppercase tracking-[0.3em] text-[10px] text-green-500 italic">
+              <h4 className="font-black mb-10 uppercase tracking-[0.3em] text-[10px] text-orange-500 italic">
                 Social
               </h4>
               <div className="flex gap-4">
-                <div className="bg-neutral-800 border border-neutral-700 p-3 rounded-2xl hover:bg-green-600 hover:text-white transition-all cursor-pointer text-neutral-400">
+                <div className="bg-neutral-800 border border-neutral-700 p-3 rounded-2xl hover:bg-orange-600 hover:text-white transition-all cursor-pointer text-neutral-400">
                   <Facebook className="w-5 h-5" />
                 </div>
-                <div className="bg-neutral-800 border border-neutral-700 p-3 rounded-2xl hover:bg-green-600 hover:text-white transition-all cursor-pointer text-neutral-400">
+                <a href="https://instagram.com/mundialbateriasgo" target="_blank" rel="noopener noreferrer" className="bg-neutral-800 border border-neutral-700 p-3 rounded-2xl hover:bg-orange-600 hover:text-white transition-all cursor-pointer text-neutral-400">
                   <Instagram className="w-5 h-5" />
-                </div>
-                <div className="bg-neutral-800 border border-neutral-700 p-3 rounded-2xl hover:bg-green-600 hover:text-white transition-all cursor-pointer text-neutral-400">
+                </a>
+                <div className="bg-neutral-800 border border-neutral-700 p-3 rounded-2xl hover:bg-orange-600 hover:text-white transition-all cursor-pointer text-neutral-400">
                   <Youtube className="w-5 h-5" />
                 </div>
               </div>
             </div>
           </div>
           <div className="pt-12 border-t border-neutral-800 text-center text-[10px] text-neutral-500 font-black tracking-[0.3em] uppercase">
-            <p>© 2024 POTENCIA DAS BATERIAS - OTIMIZADO PARA GOOGLE</p>
+            <p>© 2024 MUNDIAL BATERIAS - OTIMIZADO PARA GOOGLE</p>
           </div>
         </div>
       </footer>

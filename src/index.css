@@ -22,26 +22,26 @@ html {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #16a34a;
+  background: #f97316;
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #15803d;
+  background: #ea580c;
 }
 
 /* Efeitos de Energia da Bateria */
-@keyframes electric-pulse-green {
-  0% { box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.7); }
-  70% { box-shadow: 0 0 0 10px rgba(22, 163, 74, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(22, 163, 74, 0); }
+@keyframes electric-pulse-orange {
+  0% { box-shadow: 0 0 0 0 rgba(249, 115, 22, 0.7); }
+  70% { box-shadow: 0 0 0 10px rgba(249, 115, 22, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(249, 115, 22, 0); }
 }
 
-@keyframes electric-glow-green {
-  0%, 100% { box-shadow: 0 0 5px #16a34a, 0 0 10px #16a34a; filter: brightness(1); }
-  50% { box-shadow: 0 0 20px #16a34a, 0 0 30px #22c55e; filter: brightness(1.1); }
+@keyframes electric-glow-orange {
+  0%, 100% { box-shadow: 0 0 5px #f97316, 0 0 10px #f97316; filter: brightness(1); }
+  50% { box-shadow: 0 0 20px #f97316, 0 0 30px #fb923c; filter: brightness(1.1); }
 }
 
-.hover-electric-green:hover {
-  animation: electric-glow-green 1.5s infinite;
+.hover-electric-orange:hover {
+  animation: electric-glow-orange 1.5s infinite;
   transform: translateY(-2px);
 }
