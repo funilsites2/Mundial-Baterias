@@ -788,14 +788,20 @@ export default function App() {
             </div>
           </div>
 
-          <div className="relative w-full aspect-[21/9] md:aspect-[3/1] bg-gradient-to-b from-transparent to-slate-50 dark:to-neutral-900/50 rounded-3xl flex items-end justify-center overflow-hidden">
+          <div className="relative w-full aspect-[21/9] md:aspect-[3/1] flex items-end justify-center group">
+            {/* Energy Glow Effect */}
+            <div className="absolute inset-0 flex items-center justify-center opacity-50 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none">
+              <div className="absolute w-[60%] h-[60%] bg-orange-500/30 blur-[80px] rounded-full animate-pulse"></div>
+              <div className="absolute w-[40%] h-[40%] bg-yellow-400/20 blur-[60px] rounded-full animate-pulse" style={{ animationDelay: '0.5s' }}></div>
+            </div>
+            
             <img 
               src="https://marvanbaterias.com.br/portal/wp-content/uploads/2018/04/capa_moura.png" 
               alt="Marcas de Baterias" 
-              className="w-full h-full object-contain object-bottom hover:scale-105 transition-transform duration-700"
+              className="w-full h-full object-contain object-bottom hover:scale-105 transition-transform duration-700 relative z-10 drop-shadow-[0_0_15px_rgba(249,115,22,0.3)] group-hover:drop-shadow-[0_0_25px_rgba(249,115,22,0.6)]"
               onError={(e) => {
                 e.currentTarget.src = "https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?auto=format&fit=crop&q=80&w=1200";
-                e.currentTarget.className = "w-full h-full object-cover object-center opacity-80";
+                e.currentTarget.className = "w-full h-full object-cover object-center opacity-80 relative z-10";
               }}
             />
           </div>
