@@ -41,6 +41,45 @@ html {
   50% { box-shadow: 0 0 20px #f97316, 0 0 30px #fb923c; filter: brightness(1.1); }
 }
 
+@keyframes text-energy-flow {
+  0% { background-position: 0% 50%; filter: drop-shadow(0 0 5px rgba(249, 115, 22, 0.4)); }
+  50% { background-position: 100% 50%; filter: drop-shadow(0 0 15px rgba(249, 115, 22, 0.8)) drop-shadow(0 0 5px rgba(250, 204, 21, 0.5)); }
+  100% { background-position: 0% 50%; filter: drop-shadow(0 0 5px rgba(249, 115, 22, 0.4)); }
+}
+
+.animate-text-energy {
+  background-size: 200% auto;
+  animation: text-energy-flow 2s linear infinite;
+}
+
+@keyframes spin-border {
+  from { transform: translate(-50%, -50%) rotate(0deg); }
+  to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+.energy-border-container {
+  position: absolute;
+  inset: -2px;
+  border-radius: 26px; /* 24px (rounded-3xl) + 2px */
+  padding: 2px;
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 10;
+}
+
+.energy-border-spinner {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 300%;
+  height: 300%;
+  background: conic-gradient(transparent 0%, transparent 60%, rgba(249, 115, 22, 0.2) 70%, #f97316 90%, #fb923c 95%, #f97316 100%);
+  animation: spin-border 4s linear infinite;
+}
+
 .hover-electric-orange:hover {
   animation: electric-glow-orange 1.5s infinite;
   transform: translateY(-2px);

@@ -210,7 +210,7 @@ export default function App() {
       name: "Extranger",
       tag: "ExtrangerOriginal",
       desc: "Robustez e durabilidade. A energia que seu veículo precisa para rodar com segurança.",
-      img: "https://i.imgur.com/ZIqdjTy.jpeg"
+      img: "https://i.imgur.com/g9NHIhE.png"
     }
   ];
 
@@ -337,6 +337,8 @@ export default function App() {
       message += ` em ${cityMap[selectedCity] || selectedCity}`;
     }
 
+    message += '\n\n🏷️ Vim do site mundialbaterias.com';
+
     return `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
   };
 
@@ -392,7 +394,7 @@ export default function App() {
 
       {/* Floating Emergency Call Button */}
       <motion.a
-        href="tel:62993147640"
+        href={`tel:${whatsappNumber}`}
         aria-label="Ligar para socorro de baterias"
         variants={{
           visible: { y: 0, opacity: 1 },
@@ -476,7 +478,7 @@ export default function App() {
               <Sun className="w-4 h-4" />
             </button>
             <a
-              href="tel:62993147640"
+              href={`tel:${whatsappNumber}`}
               className="flex items-center gap-2 text-white bg-orange-600 px-6 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest hover:bg-white hover:text-orange-600 transition-all duration-300 shadow-lg shadow-orange-600/20 border border-transparent hover:border-orange-600 hover-electric-orange"
             >
               <Phone className="w-3.5 h-3.5" /> Deseja Pedir por Telefone? Ligue: (62) 99314-7640
@@ -577,7 +579,7 @@ export default function App() {
               </p>
               <div className="flex flex-wrap gap-6 items-center animate-in fade-in slide-in-from-left duration-700 delay-300 relative z-30">
                 <a
-                  href="https://wa.link/zgopqx"
+                  href={getWhatsappLink()}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="bg-orange-600 text-white px-10 py-5 rounded-lg font-black italic tracking-widest hover:bg-white hover:text-orange-600 transition-all flex items-center gap-3 group shadow-lg shadow-orange-600/20 hover-electric-orange relative z-50"
@@ -591,10 +593,15 @@ export default function App() {
 
           {/* Floating Search Widget */}
           <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 w-[90%] max-w-5xl bg-slate-50 dark:bg-[#120500]/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-slate-200 dark:border-orange-900/30 p-8 md:p-10 animate-in fade-in zoom-in duration-700 delay-500 z-40">
-            <h2 className="text-center text-xl md:text-2xl font-black italic tracking-tight text-slate-900 dark:text-white mb-8">
+            {/* Animated Energy Border */}
+            <div className="energy-border-container">
+              <div className="energy-border-spinner"></div>
+            </div>
+            
+            <h2 className="text-center text-xl md:text-2xl font-black italic tracking-tight text-slate-900 dark:text-white mb-8 relative z-20">
               Peça de onde estiver e pague apenas na entrega!
             </h2>
-            <div className="grid md:grid-cols-3 gap-6">
+            <div className="grid md:grid-cols-3 gap-6 relative z-20">
               <CustomSelect
                 options={cityOptions}
                 value={selectedCity}
@@ -625,7 +632,7 @@ export default function App() {
       </section>
 
       {/* Units Section */}
-      <section id="unidades" className="relative z-30 pt-64 pb-32 bg-white dark:bg-transparent">
+      <section id="unidades" className="relative z-30 pt-32 md:pt-40 pb-32 bg-white dark:bg-transparent">
         <FadeIn className="max-w-7xl mx-auto px-6">
           <div className="mb-20">
             <div className="flex items-center gap-2 text-orange-500 font-bold text-xs tracking-[0.4em] mb-4 uppercase">
@@ -706,7 +713,7 @@ export default function App() {
                     <MapPin className="w-3.5 h-3.5" /> Ver Mapa
                   </a>
                   <a
-                    href="https://wa.link/zgopqx"
+                    href={getWhatsappLink()}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center justify-center gap-2 py-4 bg-orange-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-orange-700 transition-all shadow-lg shadow-orange-600/20 hover-electric-orange"
@@ -725,7 +732,9 @@ export default function App() {
         <FadeIn className="max-w-7xl mx-auto px-6">
           <div className="mb-16">
             <h2 className="text-3xl md:text-5xl font-black italic uppercase text-slate-900 dark:text-white mb-4">
-              POR QUE <span className="text-slate-500">ESCOLHER A MUNDIAL BATERIAS?</span>
+              <span className="bg-clip-text text-transparent bg-gradient-to-r from-orange-500 via-yellow-400 to-orange-600 animate-text-energy inline-block">
+                POR QUE ESCOLHER A MUNDIAL BATERIAS?
+              </span>
             </h2>
             <p className="text-slate-600 dark:text-gray-400 text-lg font-medium">
               Confira os benefícios que fazem da Mundial Baterias a sua melhor escolha:
@@ -1114,7 +1123,7 @@ export default function App() {
                 na região.
               </p>
               <a
-                href="tel:62993147640"
+                href={`tel:${whatsappNumber}`}
                 className="hidden md:inline-flex items-center gap-2 text-white bg-orange-600 px-6 py-3 rounded-full text-[10px] font-black uppercase tracking-widest hover:bg-white hover:text-orange-600 transition-all shadow-lg shadow-orange-600/20 hover-electric-orange"
               >
                 <Phone className="w-3.5 h-3.5" /> Deseja Pedir por Telefone? Ligue: (62) 99314-7640
@@ -1137,7 +1146,7 @@ export default function App() {
               <ul className="space-y-4 text-sm text-neutral-400 font-bold uppercase tracking-widest">
                 <li>
                   <a
-                    href="https://wa.link/zgopqx"
+                    href={getWhatsappLink()}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="hover:text-white transition-colors"
