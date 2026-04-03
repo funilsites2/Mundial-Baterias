@@ -632,7 +632,7 @@ export default function App() {
       </section>
 
       {/* Units Section */}
-      <section id="unidades" className="relative z-30 pt-32 md:pt-40 pb-32 bg-white dark:bg-transparent">
+      <section id="unidades" className="relative z-30 pt-72 md:pt-40 pb-32 bg-white dark:bg-transparent">
         <FadeIn className="max-w-7xl mx-auto px-6">
           <div className="mb-20">
             <div className="flex items-center gap-2 text-orange-500 font-bold text-xs tracking-[0.4em] mb-4 uppercase">
@@ -1163,10 +1163,10 @@ export default function App() {
                 Social
               </h4>
               <div className="flex gap-4">
-                <div className="bg-neutral-800 border border-neutral-700 p-3 rounded-2xl hover:bg-orange-600 hover:text-white transition-all cursor-pointer text-neutral-400">
+                <a href="https://www.facebook.com/people/Mundial-baterias/61552026774684" target="_blank" rel="noopener noreferrer" className="bg-neutral-800 border border-neutral-700 p-3 rounded-2xl hover:bg-orange-600 hover:text-white transition-all cursor-pointer text-neutral-400">
                   <Facebook className="w-5 h-5" />
-                </div>
-                <a href="https://instagram.com/mundialbateriasgo" target="_blank" rel="noopener noreferrer" className="bg-neutral-800 border border-neutral-700 p-3 rounded-2xl hover:bg-orange-600 hover:text-white transition-all cursor-pointer text-neutral-400">
+                </a>
+                <a href="https://www.instagram.com/mundialbateriasgo" target="_blank" rel="noopener noreferrer" className="bg-neutral-800 border border-neutral-700 p-3 rounded-2xl hover:bg-orange-600 hover:text-white transition-all cursor-pointer text-neutral-400">
                   <Instagram className="w-5 h-5" />
                 </a>
                 <div className="bg-neutral-800 border border-neutral-700 p-3 rounded-2xl hover:bg-orange-600 hover:text-white transition-all cursor-pointer text-neutral-400">
