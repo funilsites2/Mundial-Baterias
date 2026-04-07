@@ -394,6 +394,7 @@ export default function App() {
 
       {/* Floating Emergency Call Button */}
       <motion.a
+        id="btn-floating-call"
         href={`tel:${whatsappNumber}`}
         aria-label="Ligar para socorro de baterias"
         variants={{
@@ -478,6 +479,7 @@ export default function App() {
               <Sun className="w-4 h-4" />
             </button>
             <a
+              id="btn-header-call"
               href={`tel:${whatsappNumber}`}
               className="flex items-center gap-2 text-white bg-orange-600 px-6 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest hover:bg-white hover:text-orange-600 transition-all duration-300 shadow-lg shadow-orange-600/20 border border-transparent hover:border-orange-600 hover-electric-orange"
             >
@@ -579,6 +581,7 @@ export default function App() {
               </p>
               <div className="flex flex-wrap gap-6 items-center animate-in fade-in slide-in-from-left duration-700 delay-300 relative z-30">
                 <a
+                  id="btn-hero-whatsapp"
                   href={getWhatsappLink()}
                   target="_blank"
                   rel="noopener noreferrer"
@@ -606,7 +609,7 @@ export default function App() {
                 options={cityOptions}
                 value={selectedCity}
                 onChange={setSelectedCity}
-                placeholder="Selecione sua Cidade"
+                placeholder="Selecione seu Bairro"
                 icon={MapPin}
               />
 
@@ -619,6 +622,7 @@ export default function App() {
               />
 
               <a 
+                id="btn-search-whatsapp"
                 href={getWhatsappLink()}
                 target="_blank"
                 rel="noopener noreferrer"
@@ -713,6 +717,7 @@ export default function App() {
                     <MapPin className="w-3.5 h-3.5" /> Ver Mapa
                   </a>
                   <a
+                    id="btn-jardim-america-whatsapp"
                     href={getWhatsappLink()}
                     target="_blank"
                     rel="noopener noreferrer"
@@ -725,6 +730,64 @@ export default function App() {
             </div>
           </div>
         </FadeIn>
+      </section>
+
+      {/* Parceiros Oficiais Section */}
+      <section id="marcas" className="relative z-30 py-32 bg-slate-50 dark:bg-[#0a0500] border-y border-slate-200 dark:border-white/5 overflow-hidden">
+        <FadeIn className="max-w-7xl mx-auto px-6">
+          <div className="text-center mb-20">
+            <div className="flex items-center justify-center gap-2 text-orange-500 font-bold text-xs tracking-[0.4em] mb-4 uppercase">
+              <span className="w-8 h-[2px] bg-orange-500"></span>Parceiros Oficiais<span className="w-8 h-[2px] bg-orange-500"></span>
+            </div>
+            <h2 className="text-3xl md:text-6xl font-black tracking-tighter italic uppercase mb-6 text-slate-900 dark:text-white">
+              As Melhores Marcas
+            </h2>
+            <p className="text-slate-600 dark:text-gray-400 text-lg font-medium max-w-2xl mx-auto">
+              Trabalhamos apenas com baterias certificadas e com garantia de fábrica. Escolha a marca de sua preferência e solicite um orçamento via WhatsApp.
+            </p>
+          </div>
+        </FadeIn>
+
+        <div className="relative group/carousel w-full mt-10">
+          {/* Navigation Buttons */}
+          <button 
+            onClick={scrollBrandsLeft}
+            className="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 z-20 bg-white dark:bg-neutral-800 p-3 rounded-full shadow-xl border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white hover:text-orange-500 hover:border-orange-500 transition-all opacity-100 md:opacity-0 md:group-hover/carousel:opacity-100"
+          >
+            <ChevronLeft className="w-6 h-6" />
+          </button>
+          
+          <button 
+            onClick={scrollBrandsRight}
+            className="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 z-20 bg-white dark:bg-neutral-800 p-3 rounded-full shadow-xl border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white hover:text-orange-500 hover:border-orange-500 transition-all opacity-100 md:opacity-0 md:group-hover/carousel:opacity-100"
+          >
+            <ChevronRight className="w-6 h-6" />
+          </button>
+
+          <div 
+            ref={brandsCarouselRef}
+            className="flex overflow-x-auto gap-6 pb-12 pt-4 px-6 md:px-12 w-full"
+            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+          >
+            {batteryBrands.map((brand, index) => (
+              <div key={index} className="w-[85vw] md:w-[400px] shrink-0 group bg-white dark:bg-[#120500] rounded-3xl p-6 border border-slate-200 dark:border-white/5 hover:border-orange-500/50 transition-all duration-300 shadow-xl flex flex-col h-full">
+                  <div className="w-full h-48 bg-slate-100 dark:bg-white/5 rounded-2xl mb-6 flex items-center justify-center overflow-hidden relative">
+                    <div className="absolute top-4 left-4 bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400 text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full z-10">
+                      {brand.tag}
+                    </div>
+                    <img src={brand.img} alt={`Bateria ${brand.name}`} className="w-full h-full object-contain p-4 group-hover:scale-110 transition-transform duration-500 drop-shadow-xl" />
+                  </div>
+                  <h3 className="text-2xl font-black uppercase italic text-slate-900 dark:text-white mb-3">{brand.name}</h3>
+                  <p className="text-slate-600 dark:text-gray-400 text-sm mb-8 flex-grow">
+                    {brand.desc}
+                  </p>
+                  <a href={getWhatsappLink()} target="_blank" rel="noopener noreferrer" className="w-full py-4 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-orange-600 dark:hover:bg-orange-500 hover:text-white transition-all text-center">
+                    Consultar Valor
+                  </a>
+                </div>
+              ))}
+            </div>
+          </div>
       </section>
 
       {/* Why Choose Mundial Baterias Section */}
@@ -806,64 +869,6 @@ export default function App() {
             />
           </div>
         </FadeIn>
-      </section>
-
-      {/* Parceiros Oficiais Section */}
-      <section id="marcas" className="relative z-30 py-32 bg-slate-50 dark:bg-[#0a0500] border-y border-slate-200 dark:border-white/5 overflow-hidden">
-        <FadeIn className="max-w-7xl mx-auto px-6">
-          <div className="text-center mb-20">
-            <div className="flex items-center justify-center gap-2 text-orange-500 font-bold text-xs tracking-[0.4em] mb-4 uppercase">
-              <span className="w-8 h-[2px] bg-orange-500"></span>Parceiros Oficiais<span className="w-8 h-[2px] bg-orange-500"></span>
-            </div>
-            <h2 className="text-3xl md:text-6xl font-black tracking-tighter italic uppercase mb-6 text-slate-900 dark:text-white">
-              As Melhores Marcas
-            </h2>
-            <p className="text-slate-600 dark:text-gray-400 text-lg font-medium max-w-2xl mx-auto">
-              Trabalhamos apenas com baterias certificadas e com garantia de fábrica. Escolha a marca de sua preferência e solicite um orçamento via WhatsApp.
-            </p>
-          </div>
-        </FadeIn>
-
-        <div className="relative group/carousel w-full mt-10">
-          {/* Navigation Buttons */}
-          <button 
-            onClick={scrollBrandsLeft}
-            className="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 z-20 bg-white dark:bg-neutral-800 p-3 rounded-full shadow-xl border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white hover:text-orange-500 hover:border-orange-500 transition-all opacity-100 md:opacity-0 md:group-hover/carousel:opacity-100"
-          >
-            <ChevronLeft className="w-6 h-6" />
-          </button>
-          
-          <button 
-            onClick={scrollBrandsRight}
-            className="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 z-20 bg-white dark:bg-neutral-800 p-3 rounded-full shadow-xl border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white hover:text-orange-500 hover:border-orange-500 transition-all opacity-100 md:opacity-0 md:group-hover/carousel:opacity-100"
-          >
-            <ChevronRight className="w-6 h-6" />
-          </button>
-
-          <div 
-            ref={brandsCarouselRef}
-            className="flex overflow-x-auto gap-6 pb-12 pt-4 px-6 md:px-12 w-full"
-            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-          >
-            {batteryBrands.map((brand, index) => (
-              <div key={index} className="w-[85vw] md:w-[400px] shrink-0 group bg-white dark:bg-[#120500] rounded-3xl p-6 border border-slate-200 dark:border-white/5 hover:border-orange-500/50 transition-all duration-300 shadow-xl flex flex-col h-full">
-                  <div className="w-full h-48 bg-slate-100 dark:bg-white/5 rounded-2xl mb-6 flex items-center justify-center overflow-hidden relative">
-                    <div className="absolute top-4 left-4 bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400 text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full z-10">
-                      {brand.tag}
-                    </div>
-                    <img src={brand.img} alt={`Bateria ${brand.name}`} className="w-full h-full object-contain p-4 group-hover:scale-110 transition-transform duration-500 drop-shadow-xl" />
-                  </div>
-                  <h3 className="text-2xl font-black uppercase italic text-slate-900 dark:text-white mb-3">{brand.name}</h3>
-                  <p className="text-slate-600 dark:text-gray-400 text-sm mb-8 flex-grow">
-                    {brand.desc}
-                  </p>
-                  <a href={getWhatsappLink()} target="_blank" rel="noopener noreferrer" className="w-full py-4 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-orange-600 dark:hover:bg-orange-500 hover:text-white transition-all text-center">
-                    Consultar Valor
-                  </a>
-                </div>
-              ))}
-            </div>
-          </div>
       </section>
 
       {/* Testimonials Section */}
@@ -1129,6 +1134,7 @@ export default function App() {
                 na região.
               </p>
               <a
+                id="btn-footer-call"
                 href={`tel:${whatsappNumber}`}
                 className="hidden md:inline-flex items-center gap-2 text-white bg-orange-600 px-6 py-3 rounded-full text-[10px] font-black uppercase tracking-widest hover:bg-white hover:text-orange-600 transition-all shadow-lg shadow-orange-600/20 hover-electric-orange"
               >
