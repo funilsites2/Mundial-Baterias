@@ -32,18 +32,51 @@
     <!-- End Google Tag Manager -->
     
     <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=AW-18054823251"></script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=AW-18478841579"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
 
-      gtag('config', 'AW-18054823251');
+      gtag('config', 'AW-18478841579');
     </script>
 
-    <!-- Event snippet for Solicitar cotação conversion page -->
+    <!-- Event snippet for Contato conversion page In your html page, add the snippet and call gtag_report_conversion when someone clicks on the chosen link or button. -->
     <script>
-      gtag('event', 'conversion', {'send_to': 'AW-18054823251/Hbt9CO-Y05McENP6mqFD'});
+    function gtag_report_conversion(url) {
+      var callback = function () {
+        if (typeof(url) != 'undefined') {
+          window.location = url;
+        }
+      };
+      gtag('event', 'conversion', {
+          'send_to': 'AW-18478841579/wWn7CN-Wlo0dEOv9sutE',
+          'event_callback': callback
+      });
+      return false;
+    }
+
+    // Dispara a conversão automaticamente ao clicar em botões de WhatsApp ou ligação
+    document.addEventListener('DOMContentLoaded', function() {
+      document.addEventListener('click', function(e) {
+        var target = e.target && e.target.closest ? e.target.closest('a, button') : null;
+        if (!target) return;
+        var id = target.id || '';
+        var href = target.getAttribute('href') || '';
+        if (
+          id.indexOf('btn-') === 0 ||
+          href.indexOf('tel:') === 0 ||
+          href.indexOf('whatsapp.com') !== -1 ||
+          href.indexOf('wa.me') !== -1
+        ) {
+          if (typeof gtag === 'function') {
+            gtag('event', 'conversion', {
+              'send_to': 'AW-18478841579/wWn7CN-Wlo0dEOv9sutE'
+            });
+          }
+        }
+      }, true);
+    });
     </script>
 
     <!-- ATMC Tracking Tag -->
